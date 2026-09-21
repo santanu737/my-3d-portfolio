@@ -1,6 +1,6 @@
 # CLAUDE.md — my-3d-portfolio
 
-This repo is a personal portfolio website: **Vite + React 19 + JavaScript (no TypeScript)**, with a persistent full-viewport Three.js / @react-three/fiber / @react-three/drei background scene, GSAP scroll reveals, and Lenis smooth scroll.
+This repo is a personal portfolio website: **Vite + React 19 + JavaScript (no TypeScript)**, with a persistent full-viewport Three.js / @react-three/fiber / @react-three/drei background scene and GSAP scroll reveals. Lenis smooth scroll is planned but not installed yet.
 
 ## Project Structure
 
@@ -31,6 +31,7 @@ src/
 6. **Always run `npm run lint && npm run build` after each task and fix all errors.** Never commit with lint or build failures. ESLint is configured in `eslint.config.js`; the build output goes to `dist/`.
 7. **Cap device pixel ratio at `[1, 2]`.** The `<Canvas>` `dpr` must be clamped: `dpr={Math.min(2, window.devicePixelRatio)}` and `gl.setPixelRatio(Math.min(2, window.devicePixelRatio))` in `onCreated`. Never pass a raw `window.devicePixelRatio` — it causes 3–4× render cost on retina displays.
 8. **Provide a low-quality fallback for mobile.** On mobile (`window.innerWidth < 768` or a mobile UA), reduce the 3D scene: lower particle/orb counts, disable antialiasing, cap dpr at 1, and render a static CSS fallback (`.page-canvas-fallback`) when WebGL is unavailable or `prefers-reduced-motion` is set on desktop. The current `PageScene` already does this — preserve that behavior.
+9. **Commit after each step.** Make small, reviewable commits after each completed step.
 
 ## Existing Conventions
 
@@ -41,7 +42,7 @@ src/
 
 ## Performance Guardrails
 
-- Memoize geometries (`useMemo`) — never create `BoxGeometry`/`SphereGeometry`/`TorusGeometry` inline in JSX.
+- Never create geometries/materials inside `useFrame` or with changing args.
 - Cap `dpr` (see rule 7), disable `antialias` on mobile, and pause `frameloop` when the tab is hidden.
 - Keep particle counts modest (≤ 800 desktop, ≤ 250 mobile).
 - Avoid re-creating observer arrays / event listeners on every render or section change.
