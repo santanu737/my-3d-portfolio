@@ -1,5 +1,5 @@
-import { useScrollReveal } from '../hooks/useScrollReveal'
-import { personalInfo } from '../data/portfolio'
+import { useScrollReveal } from '../../hooks/useScrollReveal'
+import { personalInfo } from '../../data/portfolio'
 
 export function About() {
   const [ref, isVisible] = useScrollReveal({ duration: 1.0, y: 50 })

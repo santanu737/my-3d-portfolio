@@ -1,5 +1,5 @@
-import { useScrollReveal } from '../hooks/useScrollReveal'
-import { projects } from '../data/portfolio'
+import { useScrollReveal } from '../../hooks/useScrollReveal'
+import { projects } from '../../data/portfolio'
 
 export function Projects() {
   const [ref, isVisible] = useScrollReveal({ duration: 1.0, y: 50 })
@@ -18,7 +18,7 @@ export function Projects() {
         className={`projects__grid ${isVisible ? 'projects__grid--visible' : ''}`}
         ref={ref}
       >
-        {projects.map((project, idx) => (
+        {projects.map((project) => (
           <article
             key={project.id}
             className={`project-card ${project.featured ? 'project-card--featured' : ''}`}

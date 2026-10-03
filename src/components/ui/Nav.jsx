@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { personalInfo, navItems } from '../data/portfolio'
+import { personalInfo, navItems } from '../../data/portfolio'
 
 export function Nav() {
   const navRef = useRef(null)

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 // Section order — matches the DOM order
 export const SECTIONS = ['hero', 'about', 'skills', 'projects', 'experience', 'contact']

@@ -125,24 +125,7 @@ const SECTION_CONFIGS = {
   },
 }
 
-// ============================================================
-// Linear interpolation helpers
-// ============================================================
 const lerp = (a, b, t) => a + (b - a) * t
-
-const lerpColor = (a, b, t, target) => {
-  target.r = lerp(a.r, b.r, t)
-  target.g = lerp(a.g, b.g, t)
-  target.b = lerp(a.b, b.b, t)
-  return target
-}
-
-const lerpVec3 = (a, b, t, target) => {
-  target.x = lerp(a[0], b[0], t)
-  target.y = lerp(a[1], b[1], t)
-  target.z = lerp(a[2], b[2], t)
-  return target
-}
 
 // ============================================================
 // Shaders (same as before but with extra uGlow from scroll)
@@ -199,7 +182,7 @@ const hexToColor = (hex) => new THREE.Color(hex)
 // SceneController — reads scroll state, drives interpolated props
 // Renders all 3D objects with smooth transitions
 // ============================================================
-function SceneController({ activeSection, scrollProgress, isMobile, reducedMotion }) {
+function SceneController({ activeSection, scrollProgress, isMobile, fogRef }) {
   const objectRef = useRef()
   const haloRef = useRef()
   const ringRef = useRef()
@@ -234,7 +217,7 @@ function SceneController({ activeSection, scrollProgress, isMobile, reducedMotio
   const sectionOrder = ['hero', 'about', 'skills', 'projects', 'experience', 'contact']
   const idx = sectionOrder.indexOf(activeSection)
 
-  useFrame((state, delta) => {
+  useFrame((state) => {
     if (idx < 0) return
 
     const current = SECTION_CONFIGS[activeSection] || SECTION_CONFIGS.hero
@@ -331,12 +314,14 @@ function SceneController({ activeSection, scrollProgress, isMobile, reducedMotio
     camera.position.copy(stateRef.current.cameraPos)
     camera.lookAt(stateRef.current.objectPos)
 
-    // Fog
-    if (scene.fog) {
-      scene.fog.density = lerp(scene.fog.density || current.fog, s.targetFogDensity, smooth)
+    // Fog — update via fogRef (never mutate the hook-returned scene)
+    if (fogRef.current) {
+      const currentFog = current.fog
+      fogRef.current.density = lerp(fogRef.current.density || currentFog, s.targetFogDensity, smooth)
     }
 
     // Mouse glow smoothing
+    /* eslint-disable react-hooks/immutability */
     const targetGlow = stateRef.current.glowTarget ?? 0
     stateRef.current.glow = lerp(stateRef.current.glow, targetGlow, 0.1)
   })
@@ -353,11 +338,13 @@ function SceneController({ activeSection, scrollProgress, isMobile, reducedMotio
     return () => window.removeEventListener('mousemove', handleMouseMove)
   }, [])
 
-  // Apply initial fog
+  // Apply initial fog — keep a ref to it so useFrame can mutate it
   useEffect(() => {
-    scene.fog = new THREE.FogExp2(0x08080c, SECTION_CONFIGS.hero.fog)
+    const fog = new THREE.FogExp2(0x08080c, SECTION_CONFIGS.hero.fog)
+    scene.fog = fog
+    fogRef.current = fog
     return () => { scene.fog = null }
-  }, [scene])
+  }, [scene, fogRef])
 
   // Hide orbs on mobile for performance
   const visibleOrbCount = isMobile ? 2 : Math.max(2, SECTION_CONFIGS[activeSection]?.orbCount || 2)
@@ -447,6 +434,7 @@ function SceneController({ activeSection, scrollProgress, isMobile, reducedMotio
 function ParticleField({ count = 800, objectPosRef }) {
   const pointsRef = useRef()
 
+  /* eslint-disable react-hooks/purity */
   const { positions, speeds, offsets } = useMemo(() => {
     const pos = new Float32Array(count * 3)
     const spd = new Float32Array(count)
@@ -559,6 +547,7 @@ function LoadingFallback() {
 // ============================================================
 function useReducedMotion() {
   const [prefersReduced, setPrefersReduced] = useState(false)
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
     setPrefersReduced(mq.matches)
@@ -592,6 +581,7 @@ export function PageScene({ activeSection, scrollProgress }) {
   const [error, setError] = useState(false)
   const isMobile = useIsMobile()
   const prefersReduced = useReducedMotion()
+  const fogRef = useRef()
 
   // Show fallback for reduced-motion users on desktop; render 3D on mobile
   const showFallback = error || (prefersReduced && !isMobile)
@@ -619,7 +609,7 @@ export function PageScene({ activeSection, scrollProgress }) {
               activeSection={activeSection}
               scrollProgress={scrollProgress}
               isMobile={isMobile}
-              reducedMotion={prefersReduced}
+              fogRef={fogRef}
             />
           </Suspense>
         </Canvas>

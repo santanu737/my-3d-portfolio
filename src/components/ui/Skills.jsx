@@ -1,5 +1,5 @@
-import { useScrollReveal } from '../hooks/useScrollReveal'
-import { skills } from '../data/portfolio'
+import { useScrollReveal } from '../../hooks/useScrollReveal'
+import { skills } from '../../data/portfolio'
 
 export function Skills() {
   const [ref, isVisible] = useScrollReveal({ duration: 1.0, y: 50 })
@@ -11,7 +11,7 @@ export function Skills() {
         className={`skills__grid ${isVisible ? 'skills__grid--visible' : ''}`}
         ref={ref}
       >
-        {skills.map((category, idx) => (
+        {skills.map((category) => (
           <div key={category.category} className="skills__category">
             <h3 className="skills__category-title">{category.category}</h3>
             <ul className="skills__tags" role="list">

@@ -1,8 +1,8 @@
-import { useScrollReveal } from '../hooks/useScrollReveal'
-import { contact } from '../data/portfolio'
+import { useScrollReveal } from '../../hooks/useScrollReveal'
+import { contact } from '../../data/portfolio'
 
 export function Contact() {
-  const [ref, isVisible] = useScrollReveal({ duration: 1.0, y: 50 })
+  const [ref] = useScrollReveal({ duration: 1.0, y: 50 })
 
   // Helper: determine if URL is external and needs rel="noopener noreferrer"
   const isExternal = (url) => url && (url.startsWith('http://') || url.startsWith('https://'))

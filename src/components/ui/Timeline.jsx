@@ -1,5 +1,5 @@
-import { useScrollReveal } from '../hooks/useScrollReveal'
-import { experience } from '../data/portfolio'
+import { useScrollReveal } from '../../hooks/useScrollReveal'
+import { experience } from '../../data/portfolio'
 
 export function Timeline() {
   const [ref, isVisible] = useScrollReveal({ duration: 1.0, y: 50 })
@@ -8,7 +8,7 @@ export function Timeline() {
     <section id="experience" className="timeline" aria-label="Experience and education">
       <h2 className="section-title">Experience & Education</h2>
       <div className={`timeline__list ${isVisible ? 'timeline__list--visible' : ''}`} ref={ref} role="list">
-        {experience.map((item, idx) => (
+        {experience.map((item) => (
           <article
             key={item.id}
             className={`timeline__item ${item.type === 'work' ? 'timeline__item--work' : 'timeline__item--education'}`}

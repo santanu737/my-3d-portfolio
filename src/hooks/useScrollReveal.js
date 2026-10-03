@@ -5,12 +5,15 @@ import { gsap } from 'gsap'
 // useReducedMotion — detect user's motion preferences
 // ============================================================
 export function useReducedMotion() {
-  const [prefersReduced, setPrefersReduced] = useState(false)
+  const [prefersReduced, setPrefersReduced] = useState(
+    () =>
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  )
 
   useEffect(() => {
     if (typeof window === 'undefined') return
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
-    setPrefersReduced(mq.matches)
     const handler = (e) => setPrefersReduced(e.matches)
     mq.addEventListener('change', handler)
     return () => mq.removeEventListener('change', handler)
@@ -26,7 +29,7 @@ export function useReducedMotion() {
 export function useScrollReveal(options = {}) {
   const ref = useRef(null)
   const prefersReduced = useReducedMotion()
-  const [isVisible, setIsVisible] = useState(false)
+  const [isVisible, setIsVisible] = useState(prefersReduced)
 
   const {
     duration = 1.0,
@@ -39,7 +42,7 @@ export function useScrollReveal(options = {}) {
   useEffect(() => {
     if (!ref.current) return
     if (prefersReduced) {
-      setIsVisible(true)
+      animate(ref.current, { duration, delay: 0, y: 0, stagger: 0, selector: null })
       return
     }
 
