@@ -1,4 +1,7 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
+import Lenis from 'lenis'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Nav } from './components/ui/Nav'
 import { Hero } from './components/ui/Hero'
 import { About } from './components/ui/About'
@@ -7,21 +10,46 @@ import { Projects } from './components/ui/Projects'
 import { Timeline } from './components/ui/Timeline'
 import { Contact } from './components/ui/Contact'
 import { Footer } from './components/ui/Footer'
+import { CustomCursor } from './components/ui/CustomCursor'
 import { useScrollProgress } from './hooks/useScrollProgress'
+import { useStore } from './store/useStore'
 
 import './App.css'
 import './index.css'
 
 // Lazy-load the heavy persistent 3D scene
 const PageScene = lazy(() =>
-  import('./components/PageScene').then((m) => ({ default: m.PageScene }))
+  import('./components/canvas/PageScene').then((m) => ({ default: m.PageScene }))
 )
+
+gsap.registerPlugin(ScrollTrigger)
 
 function App() {
   const { activeSection, scrollProgress } = useScrollProgress()
+  const setScrollProgress = useStore((state) => state.setScrollProgress)
+
+  useEffect(() => {
+    const lenis = new Lenis()
+    const handleScroll = (instance) => {
+      ScrollTrigger.update()
+      setScrollProgress(instance.progress)
+    }
+    const handleTick = (time) => lenis.raf(time * 1000)
+
+    lenis.on('scroll', handleScroll)
+    gsap.ticker.add(handleTick)
+    gsap.ticker.lagSmoothing(0)
+
+    return () => {
+      lenis.off('scroll', handleScroll)
+      gsap.ticker.remove(handleTick)
+      lenis.destroy()
+    }
+  }, [setScrollProgress])
 
   return (
     <>
+      <CustomCursor />
       <Nav />
 
       {/* Persistent 3D canvas — fixed full-page, behind content */}

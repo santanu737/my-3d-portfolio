@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useStore } from '../store/useStore'
 
 // Section order — matches the DOM order
 export const SECTIONS = ['hero', 'about', 'skills', 'projects', 'experience', 'contact']
@@ -19,6 +20,8 @@ export function useScrollProgress() {
   const [sectionProgress, setSectionProgress] = useState(0)
 
   const observersRef = useRef([])
+  const setStoreScrollProgress = useStore((state) => state.setScrollProgress)
+  const setStoreActiveSection = useStore((state) => state.setActiveSection)
 
   // Observe all sections for visibility changes
   useEffect(() => {
@@ -33,6 +36,7 @@ export function useScrollProgress() {
             entries.forEach((entry) => {
               if (entry.isIntersecting) {
                 setActiveSection(id)
+                setStoreActiveSection(id)
               }
             })
           },
@@ -52,7 +56,7 @@ export function useScrollProgress() {
       observersRef.current.forEach((obs) => obs.disconnect())
       observersRef.current = []
     }
-  }, [])
+  }, [setStoreActiveSection])
 
   // Track scrollY and overall progress
   useEffect(() => {
@@ -63,6 +67,7 @@ export function useScrollProgress() {
 
       setScrollY(sy)
       setScrollProgress(prog)
+      setStoreScrollProgress(prog)
 
       // Calculate progress within the active section
       const activeEl = document.getElementById(activeSection)
@@ -78,7 +83,7 @@ export function useScrollProgress() {
     handleScroll() // initial
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [activeSection])
+  }, [activeSection, setStoreScrollProgress, setStoreActiveSection])
 
   return { activeSection, scrollY, scrollProgress, sectionProgress }
 }

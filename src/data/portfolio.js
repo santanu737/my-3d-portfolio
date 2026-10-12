@@ -134,3 +134,27 @@ export const contact = {
     twitter: null,
   },
 }
+
+export const sceneContent = {
+  sectionLabels: [
+    { id: "about", label: "ABOUT", color: "#00d9ff" },
+    { id: "skills", label: "SKILLS", color: "#8338ec" },
+    { id: "projects", label: "PROJECTS", color: "#ff006e" },
+    { id: "experience", label: "EXPERIENCE", color: "#00d9ff" },
+    { id: "contact", label: "CONTACT", color: "#00d9ff" },
+  ],
+  skillNodes: skills.flatMap((category) =>
+    category.items.map((label, index) => ({
+      label,
+      category: category.category,
+      index,
+    }))
+  ),
+  projectNodes: projects.map(({ id, title, year, featured }) => ({
+    id,
+    title,
+    year,
+    featured,
+  })),
+  contactLabel: contact.heading,
+}
